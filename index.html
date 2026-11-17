@@ -105,10 +105,16 @@
     </div>
 
     <script>
-        // ⚠️⚠️⚠️ 重点！把下面这行单引号里的内容，换成你自己的 DeepSeek API Key ⚠️⚠️⚠️
-        const API_KEY = 'sk-7e03fa801edd4a3eb978100be7a9f600';
-        
-        const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+                      
+               const API_URL = 'https://deepseek-proxy.1025157098.workers.dev/';
+        function getAccessToken() {
+            let t = localStorage.getItem("ds_access_token");
+            if (!t) {
+                t = prompt("请输入访问口令");
+                if (t) localStorage.setItem("ds_access_token", t);
+            }
+            return t;
+        }
         const messageContainer = document.getElementById('message-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
@@ -160,7 +166,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
+                                           "X-Access-Token": getAccessToken()
                     },
                     body: JSON.stringify(requestBody)
                 });
@@ -188,11 +194,7 @@
         function handleSend() {
             const text = userInput.value.trim();
             if (!text) return;
-            if (API_KEY === '这里替换成你的真实API_Key' || API_KEY === '') {
-                addMessage("⚠️ 请先在代码中设置你的 DeepSeek API Key！", false);
-                return;
-            }
-            userInput.value = '';
+                                                                userInput.value = '';
             userInput.style.height = 'auto';
             callDeepSeek(text);
         }
