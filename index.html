@@ -172,8 +172,14 @@
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error?.message || `请求失败，状态码：${response.status}`);
+                    const errorText = await response.text();
+                    if (response.status === 401) {
+                        localStorage.removeItem("ds_access_token");
+                        throw new Error("访问口令不正确，已清除保存的口令。请重新发送，并在弹窗中输入正确口令。");
+                    }
+                    let msg = errorText;
+                    try { const j = JSON.parse(errorText); msg = (j.error && j.error.message) || errorText; } catch (e) {}
+                    throw new Error(msg || `请求失败，状态码：${response.status}`);
                 }
 
                 const data = await response.json();
@@ -182,8 +188,7 @@
                 addMessage(assistantReply, false);
                 
             } catch (error) {
-                console.error('API调用出错:', error);
-                addMessage(`出错了：${error.message}。请检查API Key或网络。`, false);
+                addMessage(`出错了：${error.message}`, false);               
             } finally {
                 hideLoading();
                 sendBtn.disabled = false;
